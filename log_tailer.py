@@ -47,16 +47,33 @@ class LogTailer:
         
         self.logger.info(f"Starting log tailer for {device_key} -> {device_config.log_path}")
         
+        # Initialize with current file size to skip historical content
+        initial_position = await self._get_current_log_size(device_config)
+        
         self.tailer_statuses[device_key] = LogTailerStatus(
             device_ip=device_config.ip,
             device_port=device_config.port,
             log_path=device_config.log_path,
             active=True,
+            last_read_position=initial_position,
             last_activity=time.time()
         )
         
         self.active_tailers.add(device_key)
         asyncio.create_task(self._tail_log_file(device_config))
+    
+    async def _get_current_log_size(self, device_config: DeviceConfig) -> int:
+        """Get the current size of the log file to start tailing from the end"""
+        try:
+            size_command = f"stat -c %s {device_config.log_path} 2>/dev/null || echo 0"
+            size_result = await self.device_manager.run_shell_command(
+                device_config.ip, device_config.port, size_command
+            )
+            if size_result:
+                return int(size_result.strip())
+        except (ValueError, AttributeError):
+            pass
+        return 0
     
     async def stop_tailing(self, device_ip: str, device_port: int = 5555):
         """Stop tailing logs for a specific device"""
@@ -107,8 +124,9 @@ class LogTailer:
                         current_size = 0
                     
                     if current_size < status.last_read_position:
-                        status.last_read_position = 0
-                        self.logger.info(f"Log file {log_path} on {device_key} was truncated, resetting position")
+                        # Log file was truncated (likely due to restart), start from the end
+                        status.last_read_position = current_size
+                        self.logger.info(f"Log file {log_path} on {device_key} was truncated, starting from end (skipping {current_size} bytes of historical content)")
                     
                     if current_size > status.last_read_position:
                         tail_command = f"tail -c +{status.last_read_position + 1} {log_path} 2>/dev/null"
