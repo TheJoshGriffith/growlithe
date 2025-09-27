@@ -1,0 +1,25 @@
+# Core dependencies
+PyYAML>=6.0
+toml>=0.10.2
+
+# Web framework (optional, for future web interface)
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.5.0
+
+# HTTP client for web requests
+aiohttp>=3.9.0
+requests>=2.31.0
+
+# Logging and monitoring
+structlog>=23.2.0
+
+# Development and testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.7.0
+
+# Optional: For enhanced ADB functionality
+pure-python-adb>=0.3.0.dev0

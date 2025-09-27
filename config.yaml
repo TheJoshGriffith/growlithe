@@ -1,0 +1,43 @@
+device_defaults:
+  port: 5555
+  process_name: com.nianticlabs.pokemongo
+  binary_path: /data/local/tmp/newcosmog/com.nianticlabs.pokemongo
+  working_directory: /data/local/tmp/newcosmog
+  log_path: /data/local/tmp/cosmog.log
+  log_emission_enabled: false
+  rotom_url: harris.lan:7072
+  config_path: /data/local/tmp/newcosmog/config.toml
+  environment_vars:
+    LD_LIBRARY_PATH: ./lib
+  restart_on_failure: true
+  max_restart_attempts: 3
+  restart_delay: 5
+
+devices:
+  - ip: 10.0.1.50
+  - ip: 10.0.1.52
+  - ip: 10.0.1.53
+
+monitoring:
+  interval: 30
+  timeout: 10
+  retry_attempts: 3
+  retry_delay: 5
+
+logging:
+  level: INFO
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  file: android_monitor.log
+  max_size: 10485760
+  backup_count: 5
+
+adb:
+  path: adb
+  connect_timeout: 10
+  command_timeout: 30
+
+web:
+  enabled: false
+  host: 0.0.0.0
+  port: 8080
+  api_key: null

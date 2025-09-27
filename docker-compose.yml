@@ -1,0 +1,77 @@
+services:
+  android-monitor:
+    build: .
+    container_name: android-monitor
+    restart: unless-stopped
+    
+    # Network configuration
+    network_mode: host  # Use host network for ADB connections
+    
+    # Environment variables
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TZ=UTC
+    
+    # Volume mounts
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./logs:/app/logs
+      - /var/run/docker.sock:/var/run/docker.sock:ro  # For Docker API access if needed
+    
+    # Port mapping (if web interface is enabled)
+    ports:
+      - "8080:8080"
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os; exit(0 if os.path.exists('/app/android_monitor.log') else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Command override (optional)
+    # command: ["python", "main.py", "--config", "/app/config.yaml"]
+
+  # Optional: Add a web interface service
+  # web-interface:
+  #   build: .
+  #   container_name: android-monitor-web
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - WEB_ENABLED=true
+  #   volumes:
+  #     - ./config.yaml:/app/config.yaml:ro
+  #   depends_on:
+  #     - android-monitor
+
+# Optional: Add volumes for persistent data
+volumes:
+  logs:
+    driver: local
+  config:
+    driver: local
+
+# Optional: Add networks for service communication
+networks:
+  default:
+    driver: bridge
