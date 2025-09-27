@@ -1,6 +1,6 @@
 services:
   android-monitor:
-    build: .
+    image: ghcr.io/thejoshgriffith/growlithe:latest
     restart: unless-stopped
     network_mode: host
     volumes:
