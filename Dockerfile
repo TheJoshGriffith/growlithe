@@ -1,18 +1,20 @@
-# Use Python 3.11 slim image as base
-FROM python:3.11-slim
+# Use Python 3.11 Alpine image as base
+FROM python:3.11-alpine
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV DEBIAN_FRONTEND=noninteractive
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    android-tools-adb \
-    android-tools-fastboot \
+# Install system dependencies and build tools
+RUN apk add --no-cache \
+    android-tools \
     curl \
     wget \
-    && rm -rf /var/lib/apt/lists/*
+    build-base \
+    linux-headers \
+    libffi-dev \
+    openssl-dev \
+    && rm -rf /var/cache/apk/*
 
 # Create app directory
 WORKDIR /app
@@ -20,8 +22,9 @@ WORKDIR /app
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies with optimizations
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
@@ -32,8 +35,8 @@ RUN mkdir -p /app/logs /app/config
 # Make main.py executable
 RUN chmod +x main.py
 
-# Create non-root user for security
-RUN useradd --create-home --shell /bin/bash appuser && \
+# Create non-root user for security (Alpine uses adduser)
+RUN adduser -D -s /bin/sh appuser && \
     chown -R appuser:appuser /app
 USER appuser
 
