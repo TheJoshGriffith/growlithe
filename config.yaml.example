@@ -1,0 +1,70 @@
+# Android Device Monitor Configuration Example
+# Copy this file to config.yaml and customize for your devices
+
+# Global default values for all devices
+device_defaults:
+  port: 5555
+  process_name: com.nianticlabs.pokemongo
+  binary_path: /data/local/tmp/newcosmog/com.nianticlabs.pokemongo
+  working_directory: /data/local/tmp/newcosmog
+  log_path: /data/local/tmp/cosmog.log
+  log_emission_enabled: false
+  rotom_url: harris.lan:7072
+  config_path: /data/local/tmp/newcosmog/config.toml
+  environment_vars:
+    LD_LIBRARY_PATH: ./lib
+  restart_on_failure: true
+  max_restart_attempts: 3
+  restart_delay: 5
+
+# Individual device configurations
+# Each device inherits from device_defaults but can override any setting
+devices:
+  # Simple device - uses all defaults
+  - ip: 10.0.1.50
+  
+  # Device with custom port
+  - ip: 10.0.1.51
+    port: 5556
+    name: "Secondary Device"
+  
+  # Device with custom process and settings
+  - ip: 10.0.1.52
+    name: "Custom Device"
+    process_name: com.custom.app
+    binary_path: /data/local/tmp/custom/app
+    working_directory: /data/local/tmp/custom
+    environment_vars:
+      LD_LIBRARY_PATH: ./lib
+      CUSTOM_VAR: value
+    restart_on_failure: false
+    max_restart_attempts: 5
+    restart_delay: 10
+
+# Monitoring behavior settings
+monitoring:
+  interval: 30        # Time between monitoring cycles (seconds)
+  timeout: 10         # Timeout for device operations (seconds)
+  retry_attempts: 3   # Number of retry attempts for failed operations
+  retry_delay: 5      # Delay between retry attempts (seconds)
+
+# Logging configuration
+logging:
+  level: INFO
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  file: android_monitor.log
+  max_size: 10485760  # 10MB
+  backup_count: 5
+
+# ADB-specific settings
+adb:
+  path: adb
+  connect_timeout: 10
+  command_timeout: 30
+
+# Optional web interface settings
+web:
+  enabled: false
+  host: 0.0.0.0
+  port: 8080
+  api_key: null  # Set to a secure API key if enabling web interface
