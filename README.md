@@ -93,6 +93,7 @@ logging:
 - `restart_on_failure` - Auto-restart on failure (default: true)
 - `max_restart_attempts` - Max restart attempts (default: 3)
 - `restart_delay` - Delay between restarts in seconds (default: 5)
+- `log_emission_enabled` - Will take all logs from MITM and emit them to stdout, prefixed by device IP (default: false)
 
 **Monitoring Settings:**
 - `interval` - Check interval in seconds (default: 30)
